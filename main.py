@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-print("Init...")
 import config
 import telebot
 import random
@@ -20,7 +19,7 @@ def notify():
     try:
         bot.send_message(target_id, msg)
         bot.send_message(admin_id, "Цель получила напоминание")
-        print(messages)
+        print("Message sent")
     except telebot.apihelper.ApiTelegramException:
         bot.send_message(admin_id, "Не получилось отправить напоминание")
 
@@ -43,15 +42,22 @@ class PerpetualTimer:
         self.thread.cancel()
 
 
+def routine():
+    a = [2 * i for i in range(10)]
+    a = [elem + 1 for elem in a]
+
+
 if __name__ == "__main__":
     print("Start serving")
     today_date = datetime.today()
 
-    # next_date = today_date.replace(
-    #     day=today_date.day, hour=22, minute=10, second=30, microsecond=0) + timedelta(days=1)
-    # delta_t = next_date - today_date
-    #
-    # delta_t_secs = delta_t.total_seconds()
-    delta_t_secs = 10
+    next_date = today_date.replace(
+        day=today_date.day, hour=22, minute=10, second=30, microsecond=0) + timedelta(days=1)
+    delta_t = next_date - today_date
+
+    delta_t_secs = delta_t.total_seconds()
     t = PerpetualTimer(delta_t_secs, notify)
     t.start()
+
+    routine_t = PerpetualTimer(45, routine)
+    routine_t.start()
