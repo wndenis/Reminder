@@ -42,13 +42,9 @@ class PerpetualTimer:
         self.thread.cancel()
 
 
-def routine():
-    a = [2 * i for i in range(10)]
-    a = [elem + 1 for elem in a]
-
-
 if __name__ == "__main__":
     print("Start serving")
+    bot.send_message(admin_id, "Модуль напоминаний готов")
     today_date = datetime.today()
 
     next_date = today_date.replace(
@@ -58,6 +54,3 @@ if __name__ == "__main__":
     delta_t_secs = delta_t.total_seconds()
     t = PerpetualTimer(delta_t_secs, notify)
     t.start()
-
-    routine_t = PerpetualTimer(45, routine)
-    routine_t.start()
