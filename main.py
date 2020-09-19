@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+print("Init...")
 import config
 import telebot
 import random
@@ -43,6 +44,7 @@ class PerpetualTimer:
 
 
 if __name__ == "__main__":
+    print("Start serving")
     today_date = datetime.today()
 
     # next_date = today_date.replace(
