@@ -2,16 +2,17 @@
 import config
 import telebot
 import random
-
-from threading import Timer
-from datetime import datetime, timedelta
+import schedule
+import time
+import threading
+from telebot.types import Message
 
 messages = config.messages
 target_id = config.target_id
 admin_id = config.admin_id
 telegram_api_token = config.telegram_api_token
 
-bot = telebot.TeleBot(telegram_api_token)
+bot = telebot.TeleBot(telegram_api_token, threaded=True)
 
 
 def notify():
@@ -24,33 +25,35 @@ def notify():
         bot.send_message(admin_id, "Не получилось отправить напоминание")
 
 
-class PerpetualTimer:
-    def __init__(self, interval, function):
-        self.interval = interval
-        self.function = function
-        self.thread = Timer(self.interval, self.handle_function)
+@bot.message_handler(commands=["notification_check"])
+def health_check(message: Message):
+    if message.from_user.id == admin_id:
+        print("Health check")
+        bot.reply_to(message, text="Всё хорошо, напоминания работают")
 
-    def handle_function(self):
-        self.function()
-        self.thread = Timer(self.interval, self.handle_function)
-        self.thread.start()
 
-    def start(self):
-        self.thread.start()
+def run_continuously(sched, interval=1):
+    cease_continuous_run = threading.Event()
+    class ScheduleThread(threading.Thread):
+        @classmethod
+        def run(cls):
+            while not cease_continuous_run.is_set():
+                sched.run_pending()
+                time.sleep(interval)
 
-    def cancel(self):
-        self.thread.cancel()
+    continuous_thread = ScheduleThread()
+    continuous_thread.start()
+    return cease_continuous_run
+
 
 
 if __name__ == "__main__":
     print("Start serving")
-    bot.send_message(admin_id, "Модуль напоминаний готов")
-    today_date = datetime.today()
+    # bot.send_message(admin_id, "Модуль напоминаний готов")
 
-    next_date = today_date.replace(
-        day=today_date.day, hour=22, minute=10, second=30, microsecond=0) + timedelta(days=1)
-    delta_t = next_date - today_date
+    schedule.every().day.at("22:10").do(notify)
 
-    delta_t_secs = delta_t.total_seconds()
-    t = PerpetualTimer(delta_t_secs, notify)
-    t.start()
+    run_continuously(schedule)
+    bot.polling()
+
+
