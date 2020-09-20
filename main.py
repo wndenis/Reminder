@@ -51,7 +51,7 @@ if __name__ == "__main__":
     print("Start serving")
     # bot.send_message(admin_id, "Модуль напоминаний готов")
 
-    schedule.every().day.at("22:10").do(notify)
+    schedule.every().day.at("19:25").do(notify) #  -3 часа
 
     run_continuously(schedule)
     bot.polling()
